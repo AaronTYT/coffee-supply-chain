@@ -105,8 +105,14 @@ app.use("/insertData", (req, res) => {
         countryList = []
         partyTypeList = []
 
+        console.log(arrayData);
+
         arrayData.forEach((eachData, count) => {
-            const [partyType, country] = eachData;
+            //destruct from an array.
+            //order of the position is very important to insert data in the DB.
+            const [partyType, companyName, country, buy, sell] = eachData;
+
+            console.log(country);
 
             if(!countryList.includes(country)){
                 countryList.push(country)
@@ -189,7 +195,7 @@ app.use("/insertData", (req, res) => {
 });
 
 //start the index.html file main page
-app.get("/", res => {
+app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html")
 });
 

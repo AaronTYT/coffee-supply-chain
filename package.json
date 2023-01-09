@@ -1,7 +1,6 @@
 {
   "name": "coffee-supply-chain",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -20,5 +19,15 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.20"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AaronTYT/coffee-supply-chain.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/AaronTYT/coffee-supply-chain/issues"
+  },
+  "homepage": "https://github.com/AaronTYT/coffee-supply-chain#readme",
+  "description": ""
 }
