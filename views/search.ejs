@@ -1,4 +1,23 @@
-<%- include('header'); -%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js">
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" 
+    rel="stylesheet" 
+    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" 
+    crossorigin="anonymous">
+
+    <title>Search Results: </title>
+</head>
+<body>
 <div class="container" style="padding-top: 3%">
     <header class="bg-primary p-4 text-white text-center">
         <h1><%= searchType %>: </h1>
@@ -12,15 +31,21 @@
                 <th scope="col">Buy</th>
                 <th scope="col">Sell</th>
                 <th scope="col"><%= type %></th>
+                <% if(y == 1){ %>
+                <th scope="col">Party Type</th>
+                <% } %>
             </tr>
         </thead>
         <tbody>
             <% 
             var data = ""
+            var data2 = "CountryName"
             if(x == 1){
                 data = "PartyName"
             }else if(x == 2){
                 data = "CountryName"
+            }else if (x == 3){
+                data = "PartyName"
             }
 
             for (let i=0; i < newListItems.length; i++) { %>
@@ -30,7 +55,15 @@
                 <!-- <td> <%= newListItems[i]["PartyName"] %> </td> -->
                 <td> <%= newListItems[i]["Buy"] %> </td>
                 <td> <%= newListItems[i]["Sell"] %> </td>
+
+                <% if(y == 1){ %>
+                <td><%= newListItems[i][data2] %></td>
+                <% }else{ %>
                 <td><%= newListItems[i][data] %></td>
+                <% } %>
+                <% if(y == 1){ %>
+                <td><%= newListItems[i][data] %></td>
+                <% } %>
             </tr>
             <% } %>
         </tbody>

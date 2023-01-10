@@ -215,14 +215,6 @@ app.post("/", (req, res) => {
 
     var selectCountryResults = [];
     var selectCountryQuery = 
-    // `SELECT Party.PartyName,
-    // Company.CompanyName, Company.Buy, Company.Sell,
-    // Country.CountryName
-    // FROM Party
-    // INNER JOIN Company ON Party.PartyID =  Company.PartyID
-    // INNER JOIN Country ON Company.CountryID = Country.CountryID
-    // WHERE Party.PartyName = "${search}";`
-
     `SELECT Party.PartyName,
     Company.CompanyName, Company.Buy, Company.Sell,
     Country.CountryName
@@ -241,7 +233,7 @@ app.post("/", (req, res) => {
         }
         
         if(selectCountryResults.length > 0){
-            res.render("search", {x: 1, type: "Party Type", searchType: "Search results for " + search, num: selectCountryResults.length, newListItems: selectCountryResults})
+            res.render("search", {x: 1, y: 0, type: "Party Type", searchType: "Search results for " + search, num: selectCountryResults.length, newListItems: selectCountryResults})
         }
 
         console.log("Got Country query from DB");
@@ -270,11 +262,35 @@ app.post("/", (req, res) => {
 
         //parse the values to the search.ejs results:
         if(companyPartyResults.length > 0){
-            res.render("search", {x: 2, type: "Country", searchType: "Search results for " + search, num: companyPartyResults.length, newListItems: companyPartyResults})
-        }else{
-            res.render("search", {x: 3, type: "☹️", searchType: "No results", num: 0, newListItems: companyPartyResults})
+            res.render("search", {x: 2, y: 0, type: "Country", searchType: "Search results for " + search, num: companyPartyResults.length, newListItems: companyPartyResults})
         }
         console.log("Got Party query from DB");
+    });
+
+    //company names only
+    var companyResults = [];
+    var selectCompanyQuery = `SELECT Company.CompanyName, Party.PartyName, Company.Buy, Company.Sell, Country.CountryName 
+    FROM Company
+    INNER JOIN Country ON Company.CountryID = Country.CountryID
+    INNER JOIN Party ON Company.PartyID = Party.PartyID
+    WHERE Company.CompanyName = "${search}";`
+    con.query(selectCompanyQuery, (err, result) =>{
+        if(err) throw err;
+
+        for(var i=0; i < result.length; i++) {
+            //write your code for each object in the results here
+            var companyName = result[i];
+            //console.log(countryID);
+            companyResults.push(companyName);
+        }
+        
+        if(companyResults.length > 0){
+            res.render("search", {x: 3, y: 1, type: "Country", searchType: "Search results for " + search, num: companyResults.length, newListItems: companyResults})
+        } else {
+            res.render("search", {x: 4, y: 0, type: "☹️", searchType: "No results", num: 0, newListItems: companyPartyResults})
+        }
+
+        console.log("Got Country query from DB");
     });
 });
 
