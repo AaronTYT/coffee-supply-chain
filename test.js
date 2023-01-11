@@ -155,10 +155,25 @@ a.pop();
 
 a.forEach(num => console.log(num));
 
+
 var roaster1 = {"PartyName":"Roaster","CompanyName":"We Roast Beans","Buy":800,"Sell":1000,"CountryName":"Brazil"}
 var roaster2 = {"PartyName":"Roaster","CompanyName":"Burnt Beans","Buy":800,"Sell":1100,"CountryName":"Mexico"}
 var merchant = {"PartyName":"Merchant","CompanyName":"Gold Coffee Merchants","Buy":1050,"Sell":0,"CountryName":"Brazil"}
 
-console.log(roaster1);
+var newObject = {}
+if(roaster1.PartyName == "Roaster" && roaster2.PartyName == "Roaster"){
+    newObject[roaster1.CompanyName] = {};
+    newObject[roaster2.CompanyName] = {};
+}
+
+var partyType = merchant.PartyName;
+
+//A merchant inside an object of Roasters.
+var person = {[partyType]:newObject};
+
+newObject[roaster1.CompanyName] = 500;
+newObject[roaster2.CompanyName] = 500;
+// Object.assign(a: merchant.CompanyName, newObject)
+console.log(JSON.stringify(person));
 
 
