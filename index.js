@@ -198,8 +198,6 @@ app.use("/insertData", (req, res) => {
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html")
 });
-
-
 //If the user has pressed search then search in the database and extract the results:
 
 app.post("/", (req, res) => {
@@ -293,5 +291,173 @@ app.post("/", (req, res) => {
         console.log("Got Country query from DB");
     });
 });
+
+
+app.get("/tax", (req, res) => {
+    res.sendFile(__dirname + "/tax.html")
+})
+
+//Logic of how to calculate
+app.post("/tax", (req, res) => {
+    const farmer = req.body.farmer;
+    const merchant = req.body.merchant;
+    const ton = req.body.ton;
+
+    // console.log(farmer);
+    // console.log(merchant);
+    // console.log(ton);
+
+    var useDatabase = 
+    `USE coffee`
+    con.query(useDatabase, err => {
+        if(err) throw err;
+        console.log("Used.");
+    });
+
+    var companyFramerMillers = [];
+    var companyRoasters = [];
+
+    var selectFramerMillersQuery = 
+    `SELECT Party.PartyName, Company.CompanyName, Company.Buy, Company.Sell, Country.CountryName
+    FROM Company 
+    INNER JOIN Party ON Company.PartyID = Party.PartyID
+    INNER JOIN Country ON Company.CountryID = Country.CountryID
+    WHERE (Company.CompanyName = "${farmer}" OR Party.PartyID BETWEEN 2 AND 3);`
+
+    con.query(selectFramerMillersQuery, (err, result) =>{
+        if(err) throw err;
+
+        for(var i=0; i < result.length; i++) {
+            if(result[i]["PartyName"] == "Farmer" || result[i]["PartyName"] == "Miller"){
+                //write your code for each object in the results here
+                var farmerMillerData = result[i];
+                companyFramerMillers.push(farmerMillerData);
+            }else{
+                var farmerRoasterData = result[i];
+                console.log("farmerRoasterData: " + JSON.stringify(result[i]))
+                companyRoasters.push(farmerRoasterData);
+            }
+            
+            //console.log(farmerMillerData)
+        }
+        console.log(companyFramerMillers)
+        //console.log("companyRoasters structure: " + JSON.stringify(companyRoasters))
+
+        //console.log("buy: " + companyFramerMillers[0]["Buy"]);
+        //console.log("sell: " + companyFramerMillers[0]["Sell"]);
+        //console.log("companyframermillers: " + companyFramerMillers[0]["CountryName"])
+
+        //check for every Miller's buy price
+        var profitFarmerMiller = {};
+        tax = 0.105;
+        var farmerSell = companyFramerMillers[0]["Sell"];
+
+        //make it more readable by using forEach loops:
+        for(var i=1; i < companyFramerMillers.length; i++) {
+            if(companyFramerMillers[0]["Sell"] <= companyFramerMillers[i]["Buy"]){
+                if(companyFramerMillers[0]["CountryName"] == companyFramerMillers[i]["CountryName"]){
+                    var millerBuy = companyFramerMillers[i]["Buy"];
+                    
+                    var netProfit = (ton * (millerBuy - (farmerSell + (farmerSell * tax))));
+                    var name = companyFramerMillers[i]["CompanyName"];
+                
+                    profitFarmerMiller[name] = netProfit;
+                }else{
+                    var millerBuy = companyFramerMillers[i]["Buy"];
+                    var netProfit = (millerBuy - farmerSell) * ton;
+                    var name = companyFramerMillers[i]["CompanyName"];
+                    
+                    profitFarmerMiller[name] = netProfit;
+                }
+            }
+        }
+
+        //Check for every Roaster's buy price and calculate the net profit
+        //from Millers
+        //start the index by 1 since it begins a Miller Object.
+        var nestedMillersProfit = {};
+
+        var millers = companyFramerMillers.slice(1);
+        millers.forEach(eachMiller => {
+            nestedMillersProfit[eachMiller.CompanyName] = {};
+        });
+        //console.log("nestedMillersProfit: " + nestedMillersProfit["Fresh Millers"]);
+
+        companyRoasters.forEach(eachRoaster => {
+            //console.log("eachRoaster: " + JSON.stringify(eachRoaster));
+            millers.forEach(eachMiller => {
+                var eachMillerCompany = eachMiller.CompanyName;
+                var eachRoasterCompany = eachRoaster.CompanyName;
+
+                var millerCountry = eachMiller.CountryName;
+                var roasterCountry = eachRoaster.CountryName;
+
+                var millerSellPrice = eachMiller.Sell;
+                var roasterBuyPrice = eachRoaster.Buy;
+
+                //console.log("row millerCountry: " + millerCountry + ". roasterCountry: " + roasterCountry);
+                
+                //Calculate net profit:
+                if(millerSellPrice <= roasterBuyPrice){
+                    //Country Tax
+                    if(millerCountry == roasterCountry){
+                        var netProfit = (ton * (roasterBuyPrice - (millerSellPrice + (millerSellPrice * tax))));
+                        
+                        var millerName = eachMillerCompany;
+                        var roasterName = eachRoasterCompany;
+                        
+                        nestedMillersProfit[millerName][roasterName] = netProfit;
+                        
+                    }else{
+                        var netProfit = (roasterBuyPrice - millerSellPrice) * ton;
+                        
+                        var millerName = eachMillerCompany;
+                        var roasterName = eachRoasterCompany;
+                        
+                        nestedMillersProfit[millerName][roasterName] = netProfit;
+                    }
+                }
+
+            })
+        })
+        console.log("nestedMillersProfit: " + JSON.stringify(nestedMillersProfit));
+    });
+
+     //Merchant: 
+     var merchantQuery = 
+     `SELECT Party.PartyName, Company.CompanyName, Company.Buy, Company.Sell, Country.CountryName
+     FROM Company 
+     INNER JOIN Party ON Company.PartyID = Party.PartyID
+     INNER JOIN Country ON Company.CountryID = Country.CountryID
+     WHERE (Company.CompanyName = "${merchant}" OR Party.PartyID = 3);`
+     
+     var merchantProfit = {};
+
+     con.query(merchantQuery, (err, result) =>{
+         if(err) throw err;
+         
+        //continue code here
+        var merchantBuy = 0;
+
+        result.forEach(eachRoasterMerchant => {
+            //check if the party name is a Merchant.
+            console.log(JSON.stringify(eachRoasterMerchant));
+            var partyType = eachRoasterMerchant.PartyName;
+       
+            var eachRoasterCompany = eachRoasterMerchant.CompanyName;
+        
+            var roasterSellPrice = eachRoasterMerchant.Sell;
+
+            var merchant = eachRoasterMerchant.CompanyName;
+            merchantBuy = eachRoasterCompany.Buy;
+            //console.log("eachRoasterCompany " + eachRoasterCompany);
+            //console.log("roasterSellPrice " + roasterSellPrice);
+            
+            
+        });
+     });
+
+    //res.render("tax", {})
+})
 
 app.listen(process.env.PORT, () => console.log(`Port listening at ${process.env.PORT}`));

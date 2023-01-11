@@ -1,14 +1,12 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="/docs/4.1/assets/img/favicons/favicon.ico">
-
-    <title>Coffee Supply Chain</title>
-
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Calculator</title>
+</head>
+<body>
     <link rel="canonical" href="https://getbootstrap.com/docs/4.1/examples/sign-in/">
 
     <!-- Bootstrap core CSS -->
@@ -28,17 +26,17 @@
       <form class="form-signin" method="post" style="border: 0.3rem solid black;">
         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjEqvT3rrljR1fhzer4qmvieF6YJFgCj_Rrw&usqp=CAU" alt="">
 
-        <h1 class="">Coffee Supply Chain</h1>
+        <h1 class="">Coffee Supply Chain Tax</h1>
 
-        <input type="text" name="search" class="form-control top" placeholder="Party Type, Company or Country" required autofocus>
+        <input type="text" name="farmer" class="form-control top" placeholder="Name a Farmer" required autofocus>
+        <input type="text" name="merchant" class="form-control top" placeholder="Name a Merchant" required>
+        <input type="text" name="ton" class="form-control top" placeholder="Enter the number of tonnes" required>
         <br>
-        <button class="btn btn-lg btn-primary btn-block" type="submit"><i class="fa-solid fa-magnifying-glass"></i> <b>Search</b></button>
+        <button class="btn btn-lg btn-primary btn-block" type="submit"><i class="fa-solid fa-calculator"></i> <b>Calculate</b></button>
         <p class="mt-5 mb-3 text-muted">&copy; <script>document.write(new Date().getFullYear())</script>
         Copyright Aaron Tan</p>
       </form>
       
-      <button class="btn btn-lg btn-primary btn-block" 
-      type="submit"><b>Tax Calculator</b></button>
   </div>
-  </body>
+</body>
 </html>
