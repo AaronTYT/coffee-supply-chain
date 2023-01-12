@@ -39,7 +39,7 @@ if (err){
 }});
 
     
-app.get("/createDatabase", (req, res) => {
+app.get("/createData", (req, res) => {
     var createDatabase = 
     `CREATE DATABASE IF NOT EXISTS coffee`
     con.query(createDatabase, (err, result) => {
@@ -53,9 +53,7 @@ app.get("/createDatabase", (req, res) => {
         if(err) throw err;
         console.log("Used.");
     });
-});
 
-app.get("/createTables", (req, res) => {
     //Create Party Table
     var createPartyTable = 
     "CREATE TABLE IF NOT EXISTS Party(PartyID INT NOT NULL AUTO_INCREMENT, PartyName varchar(256), PRIMARY KEY(PartyID));"
@@ -85,9 +83,7 @@ app.get("/createTables", (req, res) => {
         if(err) throw err;
             console.log("Company Table has been created");
     });
-});
 
-app.use("/insertData", (req, res) => {
     //Get csv file and INSERT the csv data into MYSQL.
     var csvData = [];
     fs.createReadStream("TradePrices.csv")
@@ -192,7 +188,8 @@ app.use("/insertData", (req, res) => {
                 console.log("Company Data inserted.");
             });
         });
-    })
+    });
+    res.sendFile(__dirname + "/create.html");
 });
 
 //start the index.html file main page
@@ -319,7 +316,6 @@ app.post("/tax", (req, res) => {
     var merchantProfit = {};
 
     tax = 0.105;
-
     var selectFramerMillersQuery = 
     `SELECT Party.PartyName, Company.CompanyName, Company.Buy, Company.Sell, Country.CountryName
     FROM Company 
@@ -329,27 +325,28 @@ app.post("/tax", (req, res) => {
 
     con.query(selectFramerMillersQuery, (err, result) =>{
         if(err) throw err;
-
-        for(var i=0; i < result.length; i++) {
-            if(result[i]["PartyName"] == "Farmer" || result[i]["PartyName"] == "Miller"){
-                //write your code for each object in the results here
-                var farmerMillerData = result[i];
+        
+        result.forEach(eachFarmerMillers => {
+            var partyType = eachFarmerMillers.PartyName;
+            if(partyType == "Farmer" || "Miller"){
+                var farmerMillerData = eachFarmerMillers;
                 companyFramerMillers.push(farmerMillerData);
             }else{
-                var farmerRoasterData = result[i];
-                //console.log("farmerRoasterData: " + JSON.stringify(result[i]))
+                var farmerRoasterData = eachFarmerMillers;
                 companyRoasters.push(farmerRoasterData);
             }
-            
-            //console.log(farmerMillerData)
-        }
-       
+        });
+
         var farmerSell = companyFramerMillers[0]["Sell"];
+        var framerCountry = companyFramerMillers[0]["CountryName"];
 
         //make it more readable by using forEach loops:
         for(var i=1; i < companyFramerMillers.length; i++) {
-            if(companyFramerMillers[0]["Sell"] <= companyFramerMillers[i]["Buy"]){
-                if(companyFramerMillers[0]["CountryName"] == companyFramerMillers[i]["CountryName"]){
+            millerBuyMiller = companyFramerMillers[i]["Buy"];
+            if(farmerSell <= millerBuyMiller){
+                var millerCountry = companyFramerMillers[i]["CountryName"];
+
+                if(framerCountry == millerCountry){
                     var millerBuy = companyFramerMillers[i]["Buy"];
                     
                     var netProfit = (ton * (millerBuy - (farmerSell + (farmerSell * tax))));
@@ -464,7 +461,8 @@ app.post("/tax", (req, res) => {
      });
     
     //if time, find the sell from farmer and buy from merchant
-    res.render("tax", {ton: ton, farmer: farmer, merchant: merchant, sell: 400, buy: 1050})
+    console.log(companyFramerMillers[0]);
+    res.render("tax", {ton: ton, farmer: farmer, merchant: merchant, sell: companyFramerMillers, buy: 1050})
 })
 
 app.listen(process.env.PORT, () => console.log(`Port listening at ${process.env.PORT}`));
