@@ -462,7 +462,7 @@ app.post("/tax", (req, res) => {
     
     //if time, find the sell from farmer and buy from merchant
     console.log(companyFramerMillers[0]);
-    res.render("tax", {ton: ton, farmer: farmer, merchant: merchant, sell: companyFramerMillers, buy: 1050})
+    res.render("tax", {ton: ton, farmer: farmer, merchant: merchant, sell: 400, buy: 1050})
 })
 
 app.listen(process.env.PORT, () => console.log(`Port listening at ${process.env.PORT}`));
